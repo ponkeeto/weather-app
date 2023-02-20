@@ -1,5 +1,6 @@
-import WbCloudyIcon from '@mui/icons-material/WbCloudy';
-import { AppBar, Button, Grid, Typography } from '@mui/material';
+import WbCloudyIcon from "@mui/icons-material/WbCloudy";
+import { AppBar, Grid, Typography } from "@mui/material";
+import LogoutButton from "../LogoutButton";
 
 const Header = () => {
   return (
@@ -12,12 +13,10 @@ const Header = () => {
         style={{ padding: "10px", minHeight: "10vh" }}
       >
         <Grid item container alignItems="center">
-          <WbCloudyIcon fontSize="large" />
+          <WbCloudyIcon fontSize="large" style={{ marginRight: "20px" }} />
           <Typography>Weather Forecast</Typography>
         </Grid>
-        <Button variant="outlined" style={{ background: "white" }}>
-          Logout
-        </Button>
+        <LogoutButton />
       </Grid>
     </AppBar>
   );
