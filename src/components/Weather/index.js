@@ -2,7 +2,7 @@ import { Grid, Typography } from "@mui/material";
 import Wrapper from "../AuthWrapper";
 import LoginButton from "../LoginButton";
 
-const Login = () => {
+const Weather = () => {
   return (
     <Grid
       container
@@ -37,4 +37,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Weather;

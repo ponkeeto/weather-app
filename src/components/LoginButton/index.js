@@ -3,11 +3,11 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Button } from '@mui/material';
 
 function LoginButton() {
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
+  const { isAuthenticated, loginWithPopup } = useAuth0();
 
   return (
     !isAuthenticated && (
-      <Button variant="contained" onClick={loginWithRedirect}>
+      <Button variant="contained" onClick={loginWithPopup}>
         Log in
       </Button>
     )
