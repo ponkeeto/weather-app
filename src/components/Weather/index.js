@@ -10,16 +10,36 @@ import {
   TableRow,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useRef, useState } from "react";
 
 const Weather = () => {
+  const theme = useTheme();
+  const mobileBreakpoint = useMediaQuery(theme.breakpoints.down("sm"));
+
   const { user } = useAuth0();
   const cityRef = useRef();
   const [cityData, setCityData] = useState({ name: "", lat: 0, lon: 0 });
   const [weatherData, setWeatherData] = useState({});
   const weatherDataIsEmpty = Object.entries(weatherData).length === 0;
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const apiKey = "38e1aabc856a69d9e6d52dc2f0e7c646";
   const requestUrl = `http://api.openweathermap.org`;
@@ -36,8 +56,8 @@ const Weather = () => {
       if (response.ok) {
         const jsonResponse = await response.json();
         const { dt, weather, main } = jsonResponse;
-        console.log(dt);
-        const date = dt;
+        const dateVar = new Date(dt * 1000);
+        const date = `${months[dateVar.getMonth()]} ${dateVar.getDate()}, ${dateVar.getFullYear()}`
         const description = weather[0].description;
         const { temp, pressure, humidity } = main;
         setWeatherData({ date, temp, description, pressure, humidity });
@@ -75,39 +95,60 @@ const Weather = () => {
       flexDirection="column"
       justifyContent="flex-start"
       alignItems="center"
-      style={{ marginTop: "10vh", minHeight: "90vh" }}
+      style={{ marginTop: "20vh", minHeight: "80vh" }}
     >
       <Grid
         container
         flexDirection="column"
-        alignItems="flex-start"
+        alignItems="center"
         justifyContent="flex-start"
         item
-        xs={6}
-        style={{ padding: "20px", minHeight: "50%", marginTop: "10%" }}
+        xs={12}
+        style={{ padding: "20px", minHeight: "50%", marginTop: 0 }}
       >
         {weatherDataIsEmpty ? (
-          <>
-            <Typography gutterBottom>{user.name}</Typography>
-            <Typography gutterBottom>
+          <Grid
+            container
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="flex-start"
+            item
+            xs={mobileBreakpoint ? 12 : 6}
+          >
+            <Typography gutterBottom textAlign="center">
+              {user.name}
+            </Typography>
+            <Typography gutterBottom textAlign="center">
               https://github.com/{user.nickname}
             </Typography>
-            <TextField label="Search city" type="search" inputRef={cityRef} />
+            <TextField
+              label="Search city"
+              type="search"
+              inputRef={cityRef}
+              style={{ margin: "20px 0" }}
+            />
             <Button variant="contained" onClick={handleSearchWeather}>
               Display Weather
             </Button>
-          </>
+          </Grid>
         ) : (
-          <>
+          <Grid item xs={12}>
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date (mm/dd/yyyy)</TableCell>
+                    <TableCell>{cityData.name}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Date (MMM DD, YYYY)</TableCell>
                     <TableCell align="right">Temp (F)</TableCell>
-                    <TableCell align="right">Description</TableCell>
-                    <TableCell align="right">Pressure</TableCell>
-                    <TableCell align="right">Humidity</TableCell>
+                    {!mobileBreakpoint && (
+                      <>
+                        <TableCell align="right">Description</TableCell>
+                        <TableCell align="right">Pressure (hPa)</TableCell>
+                        <TableCell align="right">Humidity (%)</TableCell>
+                      </>
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -118,25 +159,35 @@ const Weather = () => {
                     <TableCell align="right">
                       {convertKToF(weatherData.temp)}
                     </TableCell>
-                    <TableCell align="right">
-                      {weatherData.description}
-                    </TableCell>
-                    <TableCell align="right">{weatherData.pressure}</TableCell>
-                    <TableCell align="right">{weatherData.humidity}</TableCell>
+                    {!mobileBreakpoint && (
+                      <>
+                        <TableCell align="right">
+                          {weatherData.description}
+                        </TableCell>
+                        <TableCell align="right">
+                          {weatherData.pressure}
+                        </TableCell>
+                        <TableCell align="right">
+                          {weatherData.humidity}
+                        </TableCell>
+                      </>
+                    )}
                   </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setWeatherData({});
-                setCityData({ name: "", lat: 0, lon: 0 });
-              }}
-            >
-              Back
-            </Button>
-          </>
+            <Grid item style={{ marginTop: "20px" }}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setWeatherData({});
+                  setCityData({ name: "", lat: 0, lon: 0 });
+                }}
+              >
+                Back
+              </Button>
+            </Grid>
+          </Grid>
         )}
       </Grid>
     </Grid>

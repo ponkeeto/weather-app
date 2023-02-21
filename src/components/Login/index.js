@@ -1,8 +1,11 @@
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Wrapper from "../AuthWrapper";
 import LoginButton from "../LoginButton";
 
 const Login = () => {
+  const theme = useTheme();
+  const mobileBreakpoint = useMediaQuery(theme.breakpoints.down('xs'))
+
   return (
     <Grid
       container
@@ -17,7 +20,7 @@ const Login = () => {
         alignItems="flex-start"
         justifyContent="flex-start"
         item
-        xs={6}
+        xs={mobileBreakpoint ? 12 : 6}
         style={{ padding: "20px", minHeight: "50%", marginTop: "10%" }}
       >
         <Wrapper>
