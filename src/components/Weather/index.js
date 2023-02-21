@@ -21,10 +21,12 @@ const Weather = () => {
   const mobileBreakpoint = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { user } = useAuth0();
+
   const cityRef = useRef();
-  const [cityData, setCityData] = useState({ name: "", lat: 0, lon: 0 });
+  const [cityData, setCityData] = useState({});
   const [weatherData, setWeatherData] = useState({});
-  const weatherDataIsEmpty = Object.entries(weatherData).length === 0;
+
+  const dataIsEmpty = (obj) => Object.entries(obj).length === 0;
 
   const months = [
     "Jan",
@@ -50,38 +52,54 @@ const Weather = () => {
     const weatherEndpoint = "/data/2.5/weather?";
     const weatherParams = `lat=${cityData.lat}&lon=${cityData.lon}&appid=${apiKey}`;
     const weatherFetchUrl = `${requestUrl}${weatherEndpoint}${weatherParams}`;
+    const controller = new AbortController();
 
     try {
       const response = await fetch(weatherFetchUrl, { method: "GET" });
-      if (response.ok) {
+      if (response.ok && !dataIsEmpty(cityData)) {
         const jsonResponse = await response.json();
         const { dt, weather, main } = jsonResponse;
         const dateVar = new Date(dt * 1000);
-        const date = `${months[dateVar.getMonth()]} ${dateVar.getDate()}, ${dateVar.getFullYear()}`
+        const date = `${
+          months[dateVar.getMonth()]
+        } ${dateVar.getDate()}, ${dateVar.getFullYear()}`;
         const description = weather[0].description;
         const { temp, pressure, humidity } = main;
-        setWeatherData({ date, temp, description, pressure, humidity });
+        setWeatherData(() => {
+          return { date, temp, description, pressure, humidity };
+        });
       }
     } catch (error) {
       console.log(error);
     }
+
+    return () => {
+      controller.abort();
+    };
   };
 
   const getCityCoords = async (city) => {
     const geocodeEndpoint = "/geo/1.0/direct?";
     const geocodeParams = `q=${city}&limit=1&appid=${apiKey}`;
     const geocodeFetchUrl = `${requestUrl}${geocodeEndpoint}${geocodeParams}`;
+    const controller = new AbortController();
 
     try {
       const response = await fetch(geocodeFetchUrl, { method: "GET" });
       if (response.ok) {
         const jsonResponse = await response.json();
         const { name, lat, lon } = jsonResponse[0];
-        setCityData({ name, lat, lon });
+        setCityData(() => {
+          return { name, lat, lon };
+        });
       }
     } catch (error) {
       console.log(error);
     }
+
+    return () => {
+      controller.abort();
+    };
   };
 
   const convertKToF = (temp) => {
@@ -106,7 +124,7 @@ const Weather = () => {
         xs={12}
         style={{ padding: "20px", minHeight: "50%", marginTop: 0 }}
       >
-        {weatherDataIsEmpty ? (
+        {dataIsEmpty(weatherData) ? (
           <Grid
             container
             flexDirection="column"
@@ -180,8 +198,12 @@ const Weather = () => {
               <Button
                 variant="contained"
                 onClick={() => {
-                  setWeatherData({});
-                  setCityData({ name: "", lat: 0, lon: 0 });
+                  setWeatherData(() => {
+                    return {};
+                  });
+                  setCityData(() => {
+                    return {};
+                  });
                 }}
               >
                 Back
